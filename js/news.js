@@ -4,74 +4,29 @@ $(document).ready(()=>{
 
 	function getNews()
 	{
-		let endPoint = "https://newsapi.org/v1/articles";
-		let apiKey = "1cb3ca22268a477b9d2a2f65c940ecfa";
-		//sources can be added from the included links.txt
-		let urls = [
-			`${endPoint}?source=engadget&sortBy=latest&apiKey=${apiKey} `,
-			`${endPoint}?source=fortune&sortBy=latest&apiKey=${apiKey} `
-		];
+		let url = "https://newsapi.org/v1/articles?source=mashable&sortBy=latest&apiKey=1cb3ca22268a477b9d2a2f65c940ecfa";
 
-		let allResults = [];
+		$.getJSON(url, function(data) 
+		{
+			console.log("JSON data has been retrieved");
 
-		let count = urls.length-1;
-		const get =(real)=>{
-			$.getJSON(urls[ count ], function(data) {
-				console.log("JSON data has been retrieved from " + data.source);
-				let news = data.articles; //get only the news articles
-				allResults.push(news)
-				// printNews(news);
-				real();
-			})
-		};
-		recurse();		
-
-		function recurse(){
-			if(count >= 0){
-				get(recurse);
-				count--;
-			}
-			else
-				//allResults is  an arrray of nested objects
-				printNews(allResults);
-		}
+			printNews(data);
+		});
 	}
 
-	//display thew news
-	function printNews(result)
-	{	
+	function printNews(data)
+	{
+		let result = data.articles;
 
-		let res=[];
-		//flatten the array of nested objects into one single array
-		result.map(list=>{
-			// console.log(list)
-			return list.map(item=>{
-				// console.log(item)
-				res.push(item)
-			})
-		})
-		console.log(res)
-		//Shuffle all the news items
-		shuffleArray(res);		
 		let output = "";
 		for(let i = 0; i < res.length; i++)
 		{
-
-			let link =  res[i].url;
-			let resultDiv = `
-				<div class="col-sm-4 col-md-4">
-					<div class="thumbnail">
-						<img src="${res[i].urlToImage}" alt="${res[i].title}" class="img-responsive">
-						<div class="caption">
-							<h2> ${res[i].title} </h2>
-							<h4> ${res[i].description} </h4>
-							<p><a href="${link}" target="_blank" class="btn btn-primary" role="button">View Article</a> </p>
-						</div>
-					</div>
-				</div>	`
+			let link = "<a href='" + result[i].url + "' target='_blank'> ";
+			let resultDiv = "<li class='well well-lg list-group-item'><div class='row'><div class='col-xs-5'><b><p>" + link + result[i].title + "</a></p></b><p>"+ result[i].description + "</p></div><div class='col-xs-2'></div><div class='col-xs-3'>" + link + "<img src='" + result[i].urlToImage +"'  class='img-responsive img-rounded'></a></div></div></li>";
 			output += resultDiv;
 		}
-		$('.printResults').html(output);
+		$('#news-source').html("( " + data.source + " )")
+		$('#printResults').html(output);
 	}	
 
 	function shuffleArray(array) {
